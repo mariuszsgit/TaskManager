@@ -2,7 +2,6 @@ package pl.coderslab;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,104 +13,93 @@ import java.util.Scanner;
 
 public class TaskManager {
     static final String FILE_NAME = "appFile/tasks.csv";
-    static final String FILE_NAME_TEMP = "appFile/tasksTemp.csv";
 
     public static void main(String[] args) {
 
         String[][] tasks;
-
         tasks = readTasksFromFile(FILE_NAME);
-
-        //tasks = addTask(tasks);
-        tasks = removeTask(tasks);
-
-        writeTasksToFile(tasks, FILE_NAME_TEMP);
-
-
+        drawMenuInterface();
         Scanner scanner = new Scanner(System.in);
 
-        while (scanner.hasNextLine()) {
+        while (true) {
+            System.out.print("Podaj coś: ");
             String getMenuPosition = scanner.nextLine();
-            System.out.println(getMenuPosition);
 
             switch (getMenuPosition) {
                 case "add":
                     tasks = addTask(tasks);
                     break;
                 case "remove":
-                    System.out.println(ConsoleColors.GREEN + "remove");
+                    listTasks(tasks);
                     tasks = removeTask(tasks);
                     break;
                 case "list":
-                    System.out.println(ConsoleColors.GREEN + "list\n" +
-                            ConsoleColors.BLUE + "List of available tasks:" + ConsoleColors.RESET);
                     listTasks(tasks);
                     break;
                 case "save":
-                    writeTasksToFile(tasks, FILE_NAME_TEMP);
+                    writeTasksToFile(tasks, FILE_NAME);
+                    System.out.println("Saved!");
                     break;
                 case "exit":
-                    writeTasksToFile(tasks, FILE_NAME_TEMP);
-                    System.out.println("End");
-                    break;
+                    writeTasksToFile(tasks, FILE_NAME);
+                    System.out.println("Exiting!");
+                    System.exit(0);
                 default:
                     System.out.println("Please select a correct option.");
             }
+            drawMenuInterface();
         }
     }
 
     /*
      * Draw the Menu interface */
     public static String[][] addTask(String[][] tasks) {
-        //System.out.println(ConsoleColors.GREEN + "add" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.GREEN + "add" + ConsoleColors.RESET);
         Scanner scan = new Scanner(System.in);
         boolean readTasks = true;
-        String getDescription = "";
-        String input = "";
-        do {
+        while (readTasks) {
             System.out.println();
             System.out.print("Please add task description, 0-ends: ");
-            getDescription = scan.nextLine();
+            String description = scan.nextLine();
+            if (description.equals("0")) break;
 
-            System.out.print("Please add task due date: ");
-            String getDate = scan.nextLine();
+            System.out.print("Please add task due date (YYYY-MMM-DD): ");
+            String date = scan.nextLine();
+            if (date.equals("0")) break;
 
             System.out.print("This is important task, true/false: ");
-            String getImportance = scan.nextLine();
+            String important = scan.nextLine();
+            if (important.equals("0")) break;
 
-            if (getDescription.equals("0") || getDate.equals("0") || getImportance.equals("0")) {
-                readTasks = false;
-
-            }
             String[] newTask = new String[3];
-            newTask[0] = getDescription;
-            newTask[1] = getDate;
-            newTask[2] = getImportance;
+            newTask[0] = description;
+            newTask[1] = date;
+            newTask[2] = important;
             tasks = addToDoubleArray(tasks, newTask);
-        } while (!scan.nextLine().equals("0"));
-
-        scan.close();
-
-        listTasks(tasks);
+        }
         return tasks;
     }
 
-    public static String[][] removeTask(String[][] tasksToRemove) {
+    public static String[][] removeTask(String[][] taskToRemove) {
+        System.out.println(ConsoleColors.GREEN + "remove");
         Scanner scan = new Scanner(System.in);
-        int number;
+        System.out.print(ConsoleColors.BLUE + "Please select number to remove: " + ConsoleColors.RESET);
         String input = scan.nextLine();
 
-        while (!(Integer.parseInt(input) >= 0 )) {
-            System.out.println(ConsoleColors.BLUE + "Please select number to remove:" + ConsoleColors.RESET);
-            number = scan.nextInt();
+        while (!(Integer.parseInt(input) >= 0)) {
+            System.out.print(ConsoleColors.BLUE + "Please select number to remove: " + ConsoleColors.RESET);
+            input = scan.nextLine();
         }
-        tasksToRemove = ArrayUtils.remove(tasksToRemove, number);
+        taskToRemove = ArrayUtils.remove(taskToRemove, Integer.parseInt(input));
 
-        return tasksToRemove;
+        return taskToRemove;
     }
 
+    /*
+     * List available tasks
+     * */
     public static void listTasks(String[][] tasksToList) {
-
+        System.out.println(ConsoleColors.BLUE + "List of available tasks:" + ConsoleColors.RESET);
         for (int i = 0; i < tasksToList.length; i++) {
             System.out.print(i + ": ");
             for (int j = 0; j < tasksToList[i].length; j++) {
@@ -129,6 +117,9 @@ public class TaskManager {
         }
     }
 
+    /*
+     * Reads data from file
+     */
     public static String[][] readTasksFromFile(String fileName) {
         String[][] tasksArray = new String[0][0];
         Path filePath = Paths.get(fileName);
@@ -149,7 +140,6 @@ public class TaskManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return tasksArray;
     }
 
@@ -171,8 +161,7 @@ public class TaskManager {
         }
         try {
             Files.write(filePath, tekstToSave);
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -187,11 +176,8 @@ public class TaskManager {
     }
 
     public static void drawMenuInterface() {
-        System.out.println(ConsoleColors.BLUE + "Available options:");
-        System.out.println(ConsoleColors.RESET + "add");
-        System.out.println("remove");
-        System.out.println("list");
-        System.out.println("save");
-        System.out.println("exit");
+        System.out.print(ConsoleColors.BLUE + "Available options: ");
+        System.out.println(ConsoleColors.RESET + "add, remove, list, save, exit");
+        System.out.print("> ");
     }
 }
