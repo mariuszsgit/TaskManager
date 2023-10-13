@@ -22,7 +22,7 @@ public class TaskManager {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.print("Podaj coś: ");
+            System.out.print("> ");
             String getMenuPosition = scanner.nextLine();
 
             switch (getMenuPosition) {
@@ -38,7 +38,7 @@ public class TaskManager {
                     break;
                 case "save":
                     writeTasksToFile(tasks, FILE_NAME);
-                    System.out.println("Saved!");
+                    System.out.println(ConsoleColors.GREEN + "Tasks saved!");
                     break;
                 case "exit":
                     writeTasksToFile(tasks, FILE_NAME);
@@ -52,13 +52,13 @@ public class TaskManager {
     }
 
     /*
-     * Draw the Menu interface */
+     * Draw the Menu interface
+     */
     public static String[][] addTask(String[][] tasks) {
-        System.out.println(ConsoleColors.GREEN + "add" + ConsoleColors.RESET);
+        System.out.println(ConsoleColors.GREEN + "Task adding" + ConsoleColors.RESET);
         Scanner scan = new Scanner(System.in);
         boolean readTasks = true;
         while (readTasks) {
-            System.out.println();
             System.out.print("Please add task description, 0-ends: ");
             String description = scan.nextLine();
             if (description.equals("0")) break;
@@ -76,28 +76,31 @@ public class TaskManager {
             newTask[1] = date;
             newTask[2] = important;
             tasks = addToDoubleArray(tasks, newTask);
+            System.out.println(ConsoleColors.GREEN + "Add next task: " + ConsoleColors.RESET);
         }
         return tasks;
     }
 
+    /*
+     * Removes task from list
+     */
     public static String[][] removeTask(String[][] taskToRemove) {
         System.out.println(ConsoleColors.GREEN + "remove");
         Scanner scan = new Scanner(System.in);
-        System.out.print(ConsoleColors.BLUE + "Please select number to remove: " + ConsoleColors.RESET);
-        String input = scan.nextLine();
-
-        while (!(Integer.parseInt(input) >= 0)) {
+        String input;
+        do {
             System.out.print(ConsoleColors.BLUE + "Please select number to remove: " + ConsoleColors.RESET);
             input = scan.nextLine();
-        }
-        taskToRemove = ArrayUtils.remove(taskToRemove, Integer.parseInt(input));
+        } while ((Integer.parseInt(input) < 0) || (Integer.parseInt(input) > taskToRemove.length -1 ));
+
+            taskToRemove = ArrayUtils.remove(taskToRemove, Integer.parseInt(input));
 
         return taskToRemove;
     }
 
     /*
      * List available tasks
-     * */
+     */
     public static void listTasks(String[][] tasksToList) {
         System.out.println(ConsoleColors.BLUE + "List of available tasks:" + ConsoleColors.RESET);
         for (int i = 0; i < tasksToList.length; i++) {
@@ -175,9 +178,12 @@ public class TaskManager {
         return newTab;
     }
 
+    /*
+     * Draws menu interface
+     */
     public static void drawMenuInterface() {
         System.out.print(ConsoleColors.BLUE + "Available options: ");
-        System.out.println(ConsoleColors.RESET + "add, remove, list, save, exit");
-        System.out.print("> ");
+        System.out.println(ConsoleColors.GREEN_BRIGHT + "add, remove, list, save, exit" + ConsoleColors.RESET);
+        // System.out.print("> ");
     }
 }
