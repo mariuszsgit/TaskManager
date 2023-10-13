@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class TaskManager {
     static final String FILE_NAME = "appFile/tasks.csv";
@@ -22,7 +19,6 @@ public class TaskManager {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.print("> ");
             String getMenuPosition = scanner.nextLine();
 
             switch (getMenuPosition) {
@@ -42,6 +38,7 @@ public class TaskManager {
                     break;
                 case "exit":
                     writeTasksToFile(tasks, FILE_NAME);
+                    scanner.close();
                     System.out.println("Exiting!");
                     System.exit(0);
                 default:
@@ -57,8 +54,7 @@ public class TaskManager {
     public static String[][] addTask(String[][] tasks) {
         System.out.println(ConsoleColors.GREEN + "Task adding" + ConsoleColors.RESET);
         Scanner scan = new Scanner(System.in);
-        boolean readTasks = true;
-        while (readTasks) {
+        while (true) {
             System.out.print("Please add task description, 0-ends: ");
             String description = scan.nextLine();
             if (description.equals("0")) break;
@@ -87,13 +83,27 @@ public class TaskManager {
     public static String[][] removeTask(String[][] taskToRemove) {
         System.out.println(ConsoleColors.GREEN + "remove");
         Scanner scan = new Scanner(System.in);
-        String input;
+        int input = 0;
+        boolean wrongNumber = false;
         do {
-            System.out.print(ConsoleColors.BLUE + "Please select number to remove: " + ConsoleColors.RESET);
-            input = scan.nextLine();
-        } while ((Integer.parseInt(input) < 0) || (Integer.parseInt(input) > taskToRemove.length -1 ));
+            System.out.print(ConsoleColors.BLUE + "Please select number to remove 0-quit: " + ConsoleColors.RESET);
+            try {
+                input = scan.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Type a number 1 to " + taskToRemove.length);
+                scan.next();
+            }
+            wrongNumber = input < 0 || input > taskToRemove.length;
+            if (wrongNumber) {
+                System.out.println("Wrong number of task, try again.");
+            }
 
-            taskToRemove = ArrayUtils.remove(taskToRemove, Integer.parseInt(input));
+        } while (wrongNumber);
+
+        if (input != 0) {
+            taskToRemove = ArrayUtils.remove(taskToRemove, input - 1);
+        }
+
 
         return taskToRemove;
     }
@@ -104,7 +114,7 @@ public class TaskManager {
     public static void listTasks(String[][] tasksToList) {
         System.out.println(ConsoleColors.BLUE + "List of available tasks:" + ConsoleColors.RESET);
         for (int i = 0; i < tasksToList.length; i++) {
-            System.out.print(i + ": ");
+            System.out.print((i + 1) + ": ");
             for (int j = 0; j < tasksToList[i].length; j++) {
 
                 if (j != tasksToList[i].length - 1) {
@@ -133,7 +143,7 @@ public class TaskManager {
             }
         } catch (IOException e) {
             System.out.println("Error. Can't create a file.");
-            e.printStackTrace();
+            e.getMessage();
         }
 
         try {
@@ -184,6 +194,6 @@ public class TaskManager {
     public static void drawMenuInterface() {
         System.out.print(ConsoleColors.BLUE + "Available options: ");
         System.out.println(ConsoleColors.GREEN_BRIGHT + "add, remove, list, save, exit" + ConsoleColors.RESET);
-        // System.out.print("> ");
+        System.out.print("> ");
     }
 }
